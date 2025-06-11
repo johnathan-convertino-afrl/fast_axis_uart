@@ -1,1 +1,0 @@
-﻿NDSearch.OnPrefixDataLoaded("no_",["Function"],[["no_clock",,[[,,,,0,"File2:tb_cocotb_full.py:no_clock"]]]]);

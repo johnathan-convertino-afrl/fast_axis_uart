@@ -1,20 +1,12 @@
 CAPI=2:
 
-name: AFRL:device_converter:axis_uart:1.5.0
-description: UART core with rx/tx only (no handshaking at the moment).
+name: AFRL:device_converter:fast_axis_uart:1.0.0
+description: UART core with rx/tx only for back to back trasnmissions.
 
 filesets:
   src:
     files:
-      - src/axis_uart.v
-      - src/axis_uart_rx.v
-      - src/axis_uart_tx.v
-    file_type: verilogSource
-  
-  tb:
-    files:
-      - tb/tb_uart_rx.v
-      - tb/tb_uart_tx.v
+      - src/fast_axis_uart.v
     file_type: verilogSource
 
   tb_cocotb_full:
@@ -22,27 +14,12 @@ filesets:
       - tb/tb_cocotb_full.py : {file_type : user, copyto : .}
       - tb/tb_cocotb_full.v : { file_type: verilogSource }
 
-  tb_cocotb_rx:
-    files:
-      - tb/tb_cocotb_rx.py : {file_type : user, copyto : .}
-      - tb/tb_cocotb_rx.v : { file_type: verilogSource }
-
-  tb_cocotb_tx:
-    files:
-      - tb/tb_cocotb_tx.py : {file_type : user, copyto : .}
-      - tb/tb_cocotb_tx.v : { file_type: verilogSource }
-
   dep:
     depend:
       - AFRL:clock:mod_clock_ena_gen:1.1.1
       - AFRL:utility:helper:1.0.0
       - AFRL:simple:piso:1.0.0
       - AFRL:simple:sipo:1.0.0
-      
-  dep_tb:
-    depend:
-      - AFRL:simulation:axis_stimulator
-      - AFRL:utility:sim_helper
     
 targets:
   default: &default
@@ -58,20 +35,6 @@ targets:
       veriblelint:
         rules:
          - "-explicit-parameter-storage-type,-parameter-name-style,-line-length,-no-trailing-spaces"
-         
-  sim_rx:
-    <<: *default
-    description: Simulate only the rx block.
-    default_tool: icarus
-    filesets_append: [tb, dep_tb]
-    toplevel: tb_uart_rx
-    
-  sim_tx:
-    <<: *default
-    description: Simulate only the tx block.
-    default_tool: icarus
-    filesets_append: [tb, dep_tb]
-    toplevel: tb_uart_tx
 
   sim_cocotb_full:
     <<: *default
@@ -83,56 +46,15 @@ targets:
     filesets_append: [tb_cocotb_full]
     toplevel: tb_cocotb
     parameters:
-      - BAUD_CLOCK_SPEED
-      - PARITY_ENA
+      - CLOCK_SPEED
+      - PARITY_TYPE
       - STOP_BITS
       - DATA_BITS
       - BAUD_RATE
-      - PARITY_TYPE
-      - RX_DELAY
       - RX_BAUD_DELAY
-      - TX_DELAY
       - TX_BAUD_DELAY
 
-  sim_cocotb_rx:
-    <<: *default
-    description: Cocotb unit tests
-    flow: sim
-    flow_options:
-      tool: icarus
-      cocotb_module: tb_cocotb_rx
-    filesets_append: [tb_cocotb_rx]
-    toplevel: tb_cocotb
-    parameters:
-      - PARITY_ENA
-      - STOP_BITS
-      - DATA_BITS
-      - DELAY
-      - PARITY_TYPE
-
-  sim_cocotb_tx:
-    <<: *default
-    description: Cocotb unit tests
-    flow: sim
-    flow_options:
-      tool: icarus
-      cocotb_module: tb_cocotb_tx
-    filesets_append: [tb_cocotb_tx]
-    toplevel: tb_cocotb
-    parameters:
-      - PARITY_ENA
-      - STOP_BITS
-      - DATA_BITS
-      - DELAY
-      - PARITY_TYPE
-
-parameters:
-  PARITY_ENA:
-    datatype    : int
-    default     : 0
-    description : Enable parity by setting to 1.
-    paramtype   : vlogparam
-    
+parameters:    
   STOP_BITS:
     datatype    : int
     default     : 1
@@ -145,13 +67,7 @@ parameters:
     description : Number of data bits per transmission.
     paramtype   : vlogparam
 
-  DELAY:
-    datatype    : int
-    default     : 0
-    description : Number of clock cycles to delay transmission.
-    paramtype   : vlogparam
-
-  BAUD_CLOCK_SPEED:
+  CLOCK_SPEED:
     datatype    : int
     default     : 100000000
     description : clock rate for uart_clk (this is divided for clock rate).
@@ -169,22 +85,10 @@ parameters:
     description : Parity type
     paramtype   : vlogparam
 
-  RX_DELAY:
-    datatype    : int
-    default     : 0
-    description : RX Delay
-    paramtype   : vlogparam
-
   RX_BAUD_DELAY:
     datatype    : int
     default     : 0
     description : RX Baud Delay
-    paramtype   : vlogparam
-
-  TX_DELAY:
-    datatype    : int
-    default     : 0
-    description : TX Delay
     paramtype   : vlogparam
 
   TX_BAUD_DELAY:
@@ -192,7 +96,3 @@ parameters:
     default     : 0
     description : TX Baud Delay
     paramtype   : vlogparam
-
-scripts:
-  file_check_icarus:
-    cmd : [python3, file_check.py, icarus]

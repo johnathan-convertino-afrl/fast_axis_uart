@@ -1,1 +1,0 @@
-﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:axis_uart_tx","axis_uart_tx");NDSummary.OnSummaryLoaded("SystemVerilogModule:axis_uart_tx",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[32,0,0,"axis_uart_tx"]]);

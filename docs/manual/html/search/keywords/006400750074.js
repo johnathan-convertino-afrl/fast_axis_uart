@@ -1,1 +1,0 @@
-﻿NDSearch.OnPrefixDataLoaded("dut",["Module"],[["dut",,[[,,,,0,"File2:tb_cocotb_full.v:dut","SystemVerilogModule:dut"]]]]);

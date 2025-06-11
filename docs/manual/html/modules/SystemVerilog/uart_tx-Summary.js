@@ -1,1 +1,0 @@
-﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:uart_tx","uart_tx");NDSummary.OnSummaryLoaded("SystemVerilogModule:uart_tx",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[112,0,0,"uart_tx"]]);

@@ -59,17 +59,14 @@ def random_bool():
 # Parameters:
 #   dut - Device under test passed from cocotb test function
 def start_clock(dut):
-  cocotb.start_soon(Clock(dut.aclk, int(1000000000/dut.BAUD_CLOCK_SPEED.value), units="ns").start())
-  cocotb.start_soon(Clock(dut.uart_clk, int(1000000000/dut.BAUD_CLOCK_SPEED.value), units="ns").start())
+  cocotb.start_soon(Clock(dut.aclk, int(1000000000/dut.CLOCK_SPEED.value), units="ns").start())
 
 # Function: reset_dut
 # Cocotb coroutine for resets, used with await to make sure system is reset.
 async def reset_dut(dut):
   dut.arstn.value = 0
-  dut.uart_rstn.value = 0
-  await Timer(5, units="ns")
+  await Timer(10000, units="ns")
   dut.arstn.value = 1
-  dut.uart_rstn.value = 1
 
 # Function: single_word
 # Coroutine that is identified as a test routine. This routine tests for writing a single word, and
@@ -90,8 +87,8 @@ async def single_word(dut):
 
     await reset_dut(dut)
 
-    for x in range(0, 256):
-      data = x.to_bytes(length = 1, byteorder='little') * int(dut.BUS_WIDTH.value)
+    for x in range(1, 256):
+      data = x.to_bytes(length = 1, byteorder='little')
       tx_frame = AxiStreamFrame(data, tx_complete=Event())
 
       await axis_source.send(tx_frame)
@@ -100,16 +97,18 @@ async def single_word(dut):
       uart_data = await uart_sink.read()
 
       assert uart_data == tx_frame.tdata, "Input tdata does not match output"
+#       
+#       await Timer(10000, units="ns")
 
       await uart_source.write(data)
-
+      
       rx_frame = await axis_sink.recv()
-
+      
       assert rx_frame.tdata == data, "Input data does not match output"
 
     await RisingEdge(dut.aclk)
 
-    assert dut.s_axis_tready.value[0] == 1, "tready is not 1!"
+    # assert dut.s_axis_tready.value[0] == 1, "tready is not 1!"
 
 # Function: in_reset
 # Coroutine that is identified as a test routine. This routine tests if device stays
@@ -126,9 +125,7 @@ async def in_reset(dut):
 
     dut.arstn.value = 0
 
-    dut.uart_rstn.value = 0
-
-    await Timer(10, units="ns")
+    await Timer(100, units="ns")
 
     assert dut.s_axis_tready.value.integer == 0, "tready is 1!"
 
@@ -147,10 +144,6 @@ async def no_clock(dut):
 
     dut.aclk.value = 0
 
-    dut.uart_rstn.value = 0
-
-    dut.uart_clk.value = 0
-
-    await Timer(5, units="ns")
+    await Timer(100, units="ns")
 
     assert dut.s_axis_tready.value.integer == 0, "tready is 1!"

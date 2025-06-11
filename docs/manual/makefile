@@ -1,4 +1,4 @@
-PROJECT_NAME := axis_uart
+PROJECT_NAME := fast_axis_uart
 
 MK_DIR := makefiles
 

@@ -72,35 +72,27 @@
  *   cts            - clear to send is a loop with RTS
  */
 module tb_cocotb #(
-    parameter BAUD_CLOCK_SPEED  = 2000000,
+    parameter CLOCK_SPEED = 2000000,
     parameter BAUD_RATE   = 2000000,
-    parameter PARITY_ENA  = 0,
     parameter PARITY_TYPE = 0,
     parameter STOP_BITS   = 1,
     parameter DATA_BITS   = 8,
-    parameter RX_DELAY    = 0,
     parameter RX_BAUD_DELAY = 0,
-    parameter TX_DELAY    = 0,
-    parameter TX_BAUD_DELAY = 0,
-    parameter BUS_WIDTH = 1
+    parameter TX_BAUD_DELAY = 0
   )
   (
-    input                     aclk,
-    input                     arstn,
-    output                    parity_err,
-    output                    frame_err,
-    input  [BUS_WIDTH*8-1:0]  s_axis_tdata,
-    input                     s_axis_tvalid,
-    output                    s_axis_tready,
-    output [BUS_WIDTH*8-1:0]  m_axis_tdata,
-    output                    m_axis_tvalid,
-    input                     m_axis_tready,
-    input                     uart_clk,
-    input                     uart_rstn,
-    output                    tx,
-    input                     rx,
-    output                    rts,
-    input                     cts
+    input          aclk,
+    input          arstn,
+    output         parity_err,
+    output         frame_err,
+    input  [ 7:0]  s_axis_tdata,
+    input          s_axis_tvalid,
+    output         s_axis_tready,
+    output [ 7:0]  m_axis_tdata,
+    output         m_axis_tvalid,
+    input          m_axis_tready,
+    output         tx,
+    input          rx
   );
 
   // fst dump command
@@ -115,20 +107,16 @@ module tb_cocotb #(
   /*
    * Module: dut
    *
-   * Device under test, axis_uart
+   * Device under test, fast_axis_uart
    */
-  axis_uart #(
-    .BAUD_CLOCK_SPEED(BAUD_CLOCK_SPEED),
+  fast_axis_uart #(
+    .CLOCK_SPEED(CLOCK_SPEED),
     .BAUD_RATE(BAUD_RATE),
-    .PARITY_ENA(PARITY_ENA),
     .PARITY_TYPE(PARITY_TYPE),
     .STOP_BITS(STOP_BITS),
     .DATA_BITS(DATA_BITS),
-    .RX_DELAY(RX_DELAY),
     .RX_BAUD_DELAY(RX_BAUD_DELAY),
-    .TX_DELAY(TX_DELAY),
-    .TX_BAUD_DELAY(TX_BAUD_DELAY),
-    .BUS_WIDTH(BUS_WIDTH)
+    .TX_BAUD_DELAY(TX_BAUD_DELAY)
   ) dut (
     .aclk(aclk),
     .arstn(arstn),
@@ -140,12 +128,8 @@ module tb_cocotb #(
     .m_axis_tdata(m_axis_tdata),
     .m_axis_tvalid(m_axis_tvalid),
     .m_axis_tready(m_axis_tready),
-    .uart_clk(uart_clk),
-    .uart_rstn(uart_rstn),
     .tx(tx),
-    .rx(rx),
-    .rts(rts),
-    .cts(cts)
+    .rx(rx)
   );
   
 endmodule
