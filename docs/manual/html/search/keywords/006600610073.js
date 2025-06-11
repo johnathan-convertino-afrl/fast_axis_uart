@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("fas",["Module","File"],[["fast_axis_uart",,[[,,,,0,"File:fast_axis_uart.v:fast_axis_uart","SystemVerilogModule:fast_axis_uart"],[,"fast_axis_uart.v",,,1,"File:fast_axis_uart.v:fast_axis_uart.v"]]]]);

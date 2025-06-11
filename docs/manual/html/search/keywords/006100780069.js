@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("axi",["Module","File"],[["axis_uart_rx",,[[,,,,0,"File:axis_uart_rx.v:axis_uart_rx","SystemVerilogModule:axis_uart_rx"],[,"axis_uart_rx.v",,,1,"File:axis_uart_rx.v:axis_uart_rx.v"]]],["axis_uart_tx",,[[,,,,0,"File:axis_uart_tx.v:axis_uart_tx","SystemVerilogModule:axis_uart_tx"],[,"axis_uart_tx.v",,,1,"File:axis_uart_tx.v:axis_uart_tx.v"]]]]);

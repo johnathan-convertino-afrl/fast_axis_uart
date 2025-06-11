@@ -1,7 +1,7 @@
 \begin{titlepage}
   \begin{center}
 
-  {\Huge AXIS\_UART}
+  {\Huge FAST\_AXIS\_UART}
 
   \vspace{25mm}
 
@@ -27,11 +27,9 @@
 \subsection{Introduction}
 
 \par
-Simple UART core for TTL rs232 software mode data communications. No hardware handshake.
+Simple FAST UART core for TTL rs232 software mode data communications. No hardware handshake.
 This contains its own internal baud rate generator that creates an enable to allow data output
 or sampling. Baud clock and aclk can be the same clock.
-
-RTS/CTS is not implemented, it simply asserts it as if its always ready, and ignores CTS.
 
 \subsection{Dependencies}
 
@@ -54,14 +52,16 @@ This core connects a UART to the AXIS bus. Meaning this is a streaming device on
 \par
 This core is made up of other cores that are documented in detail in there source. The cores this is made up of are the,
 \begin{itemize}
-  \item \textbf{axis\_uart\_tx} Interface with UART TX and present the data over AXIS interface (see core for documentation).
-  \item \textbf{axis\_uart\_rx} Interface with UART RX and present the data over AXIS interface (see core for documentation).
+  \item \textbf{fast\_axis\_uart} Interface with UART and present the data over AXIS interface (see core for documentation).
+  \item \textbf{mod\_clk\_gen\_ena} Generates enable pulses at the baud rate based on the input clock.
+  \item \textbf{PISO} Take parallel input data and output in a serial fashion.
+  \item \textbf{SIPO} Take serial data input and output parallel data.
 \end{itemize}
 
 \section{Building}
 
 \par
-The AXIS UART is written in Verilog 2001. It should synthesize in any modern FPGA software. The core comes as a fusesoc packaged core and can be included in any other core. Be sure to make sure you have meet the dependencies listed in the previous section. Linting is performed by verible using the lint target.
+The FAST AXIS UART is written in Verilog 2001. It should synthesize in any modern FPGA software. The core comes as a fusesoc packaged core and can be included in any other core. Be sure to make sure you have meet the dependencies listed in the previous section. Linting is performed by verible using the lint target.
 
 \subsection{fusesoc}
 \par
@@ -100,15 +100,6 @@ Below highlights important folders from the root of the directory.
 \par
 There are a few different simulations that can be run for this core.
 
-\subsection{iverilog}
-\par
-iverilog is used for simple test benches for quick verification, visually, of the core.
-\begin{itemize}
-  \item \textbf{sim} Standard simulation of TX/RX looped.
-  \item \textbf{sim\_rx} Simulation of receive only.
-  \item \textbf{sim\_tx} Simulation of transmit only.
-\end{itemize}
-
 \subsection{cocotb}
 \par
 To use the cocotb tests you must install the following python libraries.
@@ -123,13 +114,11 @@ of the implimentation. These tests consist of 3 different fusesoc targets.
 
 \begin{itemize}
   \item \textbf{sim\_cocotb\_full} Standard simulation of TX/RX passing data to and from cocotbexts.
-  \item \textbf{sim\_cocotb\_rx} Simulation of data receive using cocotbext.
-  \item \textbf{sim\_cocotb\_tx} Simulation of data transmit using cocotbext.
 \end{itemize}
 
 Then you must use the cocotb sim target. The targets above can be run with various bus and fifo parameters.
 \begin{lstlisting}[language=bash]
-  $ fusesoc run --target AFRL:device_converter:axis_uart:1.0.0
+  $ fusesoc run --target AFRL:device_converter:fast_axis_uart:1.0.0
 \end{lstlisting}
 
 \newpage
@@ -137,9 +126,7 @@ Then you must use the cocotb sim target. The targets above can be run with vario
 \section{Module Documentation} \label{Module Documentation}
 
 \begin{itemize}
-\item \textbf{axis\_uart\_tx} Interfaces AXIS to the UART transmit line.\\
-\item \textbf{axis\_uart\_rx} Interfaces AXIS to the UART receive line.\\
-\item \textbf{axis\_uart} Wrapper for all of the above modules to create a singular device to interface with.\\
+\item \textbf{fast\_axis\_uart} Wrapper for all of the modules to create a singular device to interface with.\\
 \end{itemize}
 
 

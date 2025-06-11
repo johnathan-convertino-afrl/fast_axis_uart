@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("mit",["Information"],[["MIT",,[[,"License MIT","Python",,0,"File2:tb_cocotb_full.py:License_MIT"],[,"License MIT","SystemVerilog",,0,"File:axis_uart_rx.v:License_MIT"]]]]);
