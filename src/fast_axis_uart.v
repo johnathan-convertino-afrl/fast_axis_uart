@@ -185,7 +185,7 @@ module fast_axis_uart #(
    * Captures RX data for uart receive
    */
   sipo #(
-    .BUS_WIDTH(32),
+    .BUS_WIDTH(4),
     .COUNT_AMOUNT(BITS_PER_TRANS)
   ) inst_sipo (
     .clk(aclk),
@@ -204,7 +204,7 @@ module fast_axis_uart #(
    * Generates TX data for uart transmit
    */
   piso #(
-    .BUS_WIDTH(32),
+    .BUS_WIDTH(4),
     .COUNT_AMOUNT(BITS_PER_TRANS),
     .DEFAULT_RESET_VAL(1),
     .DEFAULT_SHIFT_VAL(1)
