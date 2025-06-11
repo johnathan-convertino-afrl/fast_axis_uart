@@ -97,8 +97,6 @@ module fast_axis_uart #(
   wire uart_clr_rx_clk;
   wire uart_clr_tx_clk;
   
-  wire s_m_axis_tvalid;
-  
   wire [31:0] s_tx_counter;
   wire [31:0] s_rx_counter;
   
@@ -106,20 +104,23 @@ module fast_axis_uart #(
   
   wire [31:0] s_output_data;
   
+  reg [ 7:0] r_m_axis_tdata;
+  reg        r_m_axis_tvalid;
+  
   reg r_rx;
   reg r_rx_clr;
   reg r_rx_load;
   
   reg r_tx_load;
   
-  // we will only have valid data when the counter is equal to BITS_PER_TRANS and uart_ena_rx has gone off. After this a load is done that clears the SIPO.
-  assign s_m_axis_tvalid = (s_rx_counter == BITS_PER_TRANS ? uart_ena_rx : 1'b0);
-  
   // only ready for data when the counter has hit 0 and an enable pulse comes. Since we want to make sure all pulses are the correct length.
   assign s_axis_tready = (s_tx_counter == 0 ? uart_ena_tx : 1'b0);
   
   // output that the current m_axis_tdata is valid.
-  assign m_axis_tvalid = s_m_axis_tvalid;
+  assign m_axis_tvalid = r_m_axis_tvalid;
+  
+  // output data, this doesn't matter till valid is set.
+  assign m_axis_tdata = r_m_axis_tdata;
   
   // create parity bit based on selected type
   assign parity_bit = (PARITY_TYPE == 1 ? ^s_axis_tdata[DATA_BITS-1:0] ^ 1'b1 : //odd
@@ -130,17 +131,14 @@ module fast_axis_uart #(
   // pack PISO data from inputs and specs
   assign s_input_data = {{STOP_BITS{1'b1}}, {PARITY_LEN{parity_bit}}, s_axis_tdata[DATA_BITS-1:0], 1'b0};
   
-  // always output data, this doesn't matter till valid is set.
-  assign m_axis_tdata = s_output_data[DATA_BITS:1];
-  
   // output frame error when valid data is present
-  assign frame_err = ~s_output_data[STOP_BITS+PARITY_LEN+DATA_BITS] & s_m_axis_tvalid;
+  assign frame_err = ~s_output_data[STOP_BITS+PARITY_LEN+DATA_BITS] & r_m_axis_tvalid;
   
   // output parity error when valid data is present.
   assign parity_err = (PARITY_TYPE == 1 ? ^s_output_data[DATA_BITS:1] ^ 1'b1 ^ s_output_data[DATA_BITS+PARITY_LEN] : //odd
                       (PARITY_TYPE == 2 ? ^s_output_data[DATA_BITS:1] ^ s_output_data[DATA_BITS+PARITY_LEN] :        //even
                       (PARITY_TYPE == 3 ? 1'b1 == s_output_data[DATA_BITS+PARITY_LEN]:                               //mark
-                      (PARITY_TYPE == 4 ? 1'b0 == s_output_data[DATA_BITS+PARITY_LEN]: 1'b0)))) & s_m_axis_tvalid;   //space
+                      (PARITY_TYPE == 4 ? 1'b0 == s_output_data[DATA_BITS+PARITY_LEN]: 1'b0)))) & r_m_axis_tvalid;   //space
 
   //Group: Instantiated Modules
   /*
@@ -244,18 +242,30 @@ module fast_axis_uart #(
       
       r_rx_clr  <= 1'b1;
       r_rx_load <= 1'b0;
+      
+      r_m_axis_tdata  <= 0;
+      r_m_axis_tvalid <= 1'b0;
     end else begin
       r_rx <= rx;
       
       r_rx_load <= 1'b0;
+      
+      if(m_axis_tready == 1'b1)
+      begin
+        r_m_axis_tdata  <= 0;
+        r_m_axis_tvalid <= 1'b0;
+      end
       
       if(r_rx == 1'b1 && rx == 1'b0 && r_rx_clr == 1'b1)
       begin
         r_rx_clr <= 1'b0;
       end
       
-      if(s_rx_counter == BITS_PER_TRANS && uart_ena_rx == 1'b1)
+      if(s_rx_counter == BITS_PER_TRANS && r_rx_load != 1'b1)
       begin
+        r_m_axis_tdata  <= s_output_data[DATA_BITS:1];
+        r_m_axis_tvalid <= 1'b1;
+        
         r_rx_load <= 1'b1;
         r_rx_clr  <= 1'b1;
       end
