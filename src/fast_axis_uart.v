@@ -113,7 +113,7 @@ module fast_axis_uart #(
   reg r_tx_load;
   
   // we will only have valid data when the counter is equal to BITS_PER_TRANS and uart_ena_rx has gone off. After this a load is done that clears the SIPO.
-  assign s_m_axis_tvalid = (s_rx_counter == BITS_PER_TRANS ? uart_ena_rx : 1'b0)
+  assign s_m_axis_tvalid = (s_rx_counter == BITS_PER_TRANS ? uart_ena_rx : 1'b0);
   
   // only ready for data when the counter has hit 0 and an enable pulse comes. Since we want to make sure all pulses are the correct length.
   assign s_axis_tready = (s_tx_counter == 0 ? uart_ena_tx : 1'b0);
