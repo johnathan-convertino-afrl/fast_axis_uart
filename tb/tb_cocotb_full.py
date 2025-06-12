@@ -68,14 +68,14 @@ async def reset_dut(dut):
   await Timer(10000, units="ns")
   dut.arstn.value = 1
 
-# Function: single_word
+# Function: single_word_rx_tx
 # Coroutine that is identified as a test routine. This routine tests for writing a single word, and
 # then reading a single word.
 #
 # Parameters:
 #   dut - Device under test passed from cocotb.
 @cocotb.test()
-async def single_word(dut):
+async def single_word_rx_tx(dut):
 
     start_clock(dut)
 
@@ -97,8 +97,6 @@ async def single_word(dut):
       uart_data = await uart_sink.read()
 
       assert uart_data == tx_frame.tdata, "Input tdata does not match output"
-#       
-#       await Timer(10000, units="ns")
 
       await uart_source.write(data)
       
@@ -108,7 +106,64 @@ async def single_word(dut):
 
     await RisingEdge(dut.aclk)
 
-    # assert dut.s_axis_tready.value[0] == 1, "tready is not 1!"
+    assert dut.s_axis_tready.value[0] == 1, "tready is not 1!"
+    
+# Function: single_word_rx
+# Coroutine that is identified as a test routine. This routine tests for reading a single word from the UART RX.
+#
+# Parameters:
+#   dut - Device under test passed from cocotb.
+@cocotb.test()
+async def single_word_rx(dut):
+
+    start_clock(dut)
+
+    axis_sink = AxiStreamSink(AxiStreamBus.from_prefix(dut, "m_axis"), dut.aclk, dut.arstn, False)
+
+    uart_source = UartSource(dut.rx, baud=dut.BAUD_RATE.value, bits=dut.DATA_BITS.value, stop_bits=dut.STOP_BITS.value)
+
+    await reset_dut(dut)
+
+    for x in range(1, 256):
+      data = x.to_bytes(length = 1, byteorder='little')
+
+      await uart_source.write(data)
+      
+      rx_frame = await axis_sink.recv()
+      
+      assert rx_frame.tdata == data, "Input data does not match output"
+
+    await RisingEdge(dut.aclk)
+    
+    
+# Function: single_word_tx
+# Coroutine that is identified as a test routine. This routine tests for writing a single word.
+#
+# Parameters:
+#   dut - Device under test passed from cocotb.
+@cocotb.test()
+async def single_word_tx(dut):
+
+    start_clock(dut)
+
+    axis_source = AxiStreamSource(AxiStreamBus.from_prefix(dut, "s_axis"), dut.aclk, dut.arstn, False)
+
+    uart_sink = UartSink(dut.tx, baud=dut.BAUD_RATE.value, bits=dut.DATA_BITS.value, stop_bits=dut.STOP_BITS.value)
+
+    await reset_dut(dut)
+
+    for x in range(1, 256):
+      data = x.to_bytes(length = 1, byteorder='little')
+      tx_frame = AxiStreamFrame(data, tx_complete=Event())
+
+      await axis_source.send(tx_frame)
+      await tx_frame.tx_complete.wait()
+
+      uart_data = await uart_sink.read()
+
+      assert uart_data == tx_frame.tdata, "Input tdata does not match output"
+
+    await RisingEdge(dut.aclk)
 
 # Function: in_reset
 # Coroutine that is identified as a test routine. This routine tests if device stays
