@@ -69,13 +69,13 @@ parameters:
 
   CLOCK_SPEED:
     datatype    : int
-    default     : 100000000
+    default     : 1000000
     description : clock rate for uart_clk (this is divided for clock rate).
     paramtype   : vlogparam
 
   BAUD_RATE:
     datatype    : int
-    default     : 115200
+    default     : 500000
     description : Baud rate
     paramtype   : vlogparam
 

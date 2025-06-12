@@ -116,6 +116,7 @@ module fast_axis_uart #(
   reg r_rx_clr;
   reg r_rx_load;
   
+  reg r_tx_clr;
   reg r_tx_load;
   
   // only ready for data when the counter has hit 0 and we have not stored valid input. We wait to load data since we want to make sure all pulses are the correct length.
@@ -155,7 +156,7 @@ module fast_axis_uart #(
     .clk(aclk),
     .rstn(arstn),
     .start0(1'b1),
-    .clr(1'b0),
+    .clr(r_tx_clr),
     .hold(1'b0),
     .rate(BAUD_RATE),
     .ena(uart_ena_tx)
@@ -194,7 +195,7 @@ module fast_axis_uart #(
     .load(r_rx_load),
     .pdata(s_output_data),
     .reg_count_amount(BITS_PER_TRANS),
-    .sdata(rx),
+    .sdata(r_rx),
     .dcount(s_rx_counter)
   );
   
@@ -225,6 +226,7 @@ module fast_axis_uart #(
     if(arstn == 1'b0)
     begin
       r_tx_load <= 1'b0;
+      r_tx_clr  <= 1'b1;
       
       r_input_data  <= 0;
       r_input_valid <= 1'b0;
@@ -237,9 +239,15 @@ module fast_axis_uart #(
         r_input_valid <= 1'b1;
       end
       
-      if(r_input_valid == 1'b1 && s_tx_counter == 0 && uart_ena_tx == 1'b1)
+      if(s_tx_counter == 0 && uart_ena_tx == 1'b1)
+      begin
+        r_tx_clr <= 1'b1;
+      end
+      
+      if(s_tx_counter == 0 && r_input_valid == 1'b1 && r_tx_clr == 1'b1)
       begin
         r_tx_load <= 1'b1;
+        r_tx_clr  <= 1'b0;
       end
       
       if(s_tx_counter != 0)

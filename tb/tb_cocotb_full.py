@@ -82,8 +82,8 @@ async def single_word(dut):
     axis_source = AxiStreamSource(AxiStreamBus.from_prefix(dut, "s_axis"), dut.aclk, dut.arstn, False)
     axis_sink = AxiStreamSink(AxiStreamBus.from_prefix(dut, "m_axis"), dut.aclk, dut.arstn, False)
 
-    uart_source = UartSource(dut.rx, baud=115200, bits=dut.DATA_BITS.value, stop_bits=dut.STOP_BITS.value)
-    uart_sink = UartSink(dut.tx, baud=115200, bits=dut.DATA_BITS.value, stop_bits=dut.STOP_BITS.value)
+    uart_source = UartSource(dut.rx, baud=dut.BAUD_RATE.value, bits=dut.DATA_BITS.value, stop_bits=dut.STOP_BITS.value)
+    uart_sink = UartSink(dut.tx, baud=dut.BAUD_RATE.value, bits=dut.DATA_BITS.value, stop_bits=dut.STOP_BITS.value)
 
     await reset_dut(dut)
 
