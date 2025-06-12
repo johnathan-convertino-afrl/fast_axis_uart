@@ -18,8 +18,8 @@ filesets:
     depend:
       - AFRL:clock:mod_clock_ena_gen:1.1.1
       - AFRL:utility:helper:1.0.0
-      - AFRL:simple:piso:1.0.0
-      - AFRL:simple:sipo:1.0.0
+      - AFRL:simple:piso:1.0.1
+      - AFRL:simple:sipo:1.0.1
     
 targets:
   default: &default

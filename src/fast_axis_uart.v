@@ -97,8 +97,8 @@ module fast_axis_uart #(
   wire uart_clr_rx_clk;
   wire uart_clr_tx_clk;
   
-  wire [31:0] s_tx_counter;
-  wire [31:0] s_rx_counter;
+  wire [ 7:0] s_tx_counter;
+  wire [ 7:0] s_rx_counter;
   
   wire [BITS_PER_TRANS-1:0] s_input_data;
   
@@ -183,8 +183,7 @@ module fast_axis_uart #(
    * Captures RX data for uart receive
    */
   sipo #(
-    .BUS_WIDTH(4),
-    .COUNT_AMOUNT(BITS_PER_TRANS)
+    .BUS_WIDTH(4)
   ) inst_sipo (
     .clk(aclk),
     .rstn(arstn),
@@ -192,6 +191,7 @@ module fast_axis_uart #(
     .rev(1'b1),
     .load(r_rx_load),
     .pdata(s_output_data),
+    .reg_count_amount(BITS_PER_TRANS),
     .sdata(rx),
     .dcount(s_rx_counter)
   );
@@ -203,7 +203,6 @@ module fast_axis_uart #(
    */
   piso #(
     .BUS_WIDTH(4),
-    .COUNT_AMOUNT(BITS_PER_TRANS),
     .DEFAULT_RESET_VAL(1),
     .DEFAULT_SHIFT_VAL(1)
   ) inst_piso (
@@ -213,6 +212,7 @@ module fast_axis_uart #(
     .rev(1'b1),
     .load(r_tx_load),
     .pdata({{32-BITS_PER_TRANS{1'b1}}, s_input_data}),
+    .reg_count_amount(BITS_PER_TRANS),
     .sdata(tx),
     .dcount(s_tx_counter)
   );
