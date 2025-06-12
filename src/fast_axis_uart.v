@@ -112,6 +112,8 @@ module fast_axis_uart #(
   
   reg [ 7:0] r_m_axis_tdata;
   reg        r_m_axis_tvalid;
+  reg        r_parity_err;
+  reg        r_frame_err;
   
   reg r_rx;
   reg r_rx_clr;
@@ -136,13 +138,10 @@ module fast_axis_uart #(
                       (PARITY_TYPE == 4 ? 1'b0 : 1'b0))));                      //space
   
   // output frame error when valid data is present
-  assign frame_err = ~s_output_data[STOP_BITS+PARITY_LEN+DATA_BITS] & r_m_axis_tvalid;
+  assign frame_err = r_frame_err;
   
   // output parity error when valid data is present.
-  assign parity_err = (PARITY_TYPE == 1 ? ^s_output_data[DATA_BITS:1] ^ 1'b1 ^ s_output_data[DATA_BITS+PARITY_LEN] : //odd
-                      (PARITY_TYPE == 2 ? ^s_output_data[DATA_BITS:1] ^ s_output_data[DATA_BITS+PARITY_LEN] :        //even
-                      (PARITY_TYPE == 3 ? 1'b1 == s_output_data[DATA_BITS+PARITY_LEN]:                               //mark
-                      (PARITY_TYPE == 4 ? 1'b0 == s_output_data[DATA_BITS+PARITY_LEN]: 1'b0)))) & r_m_axis_tvalid;   //space
+  assign parity_err = r_parity_err;
 
   //Group: Instantiated Modules
   /*
@@ -233,6 +232,9 @@ module fast_axis_uart #(
       
       r_m_axis_tdata  <= 0;
       r_m_axis_tvalid <= 1'b0;
+      
+      r_parity_err <= 1'b0;
+      r_frame_err <= 1'b0;
     end else begin
       r_rx <= rx;
       
@@ -253,6 +255,13 @@ module fast_axis_uart #(
       begin
         r_m_axis_tdata  <= s_output_data[DATA_BITS:1];
         r_m_axis_tvalid <= 1'b1;
+        
+        r_frame_err  <= ~s_output_data[STOP_BITS+PARITY_LEN+DATA_BITS];
+        
+        r_parity_err <= (PARITY_TYPE == 1 ? ^s_output_data[DATA_BITS:1] ^ 1'b1 ^ s_output_data[DATA_BITS+PARITY_LEN] : //odd
+                        (PARITY_TYPE == 2 ? ^s_output_data[DATA_BITS:1] ^ s_output_data[DATA_BITS+PARITY_LEN] :        //even
+                        (PARITY_TYPE == 3 ? 1'b1 == s_output_data[DATA_BITS+PARITY_LEN]:                               //mark
+                        (PARITY_TYPE == 4 ? 1'b0 == s_output_data[DATA_BITS+PARITY_LEN]: 1'b0))));                     //space
         
         r_rx_load <= 1'b1;
         r_rx_clr  <= 1'b1;
