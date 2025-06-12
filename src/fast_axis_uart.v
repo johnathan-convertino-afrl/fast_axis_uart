@@ -244,6 +244,8 @@ module fast_axis_uart #(
       begin
         r_m_axis_tdata  <= 0;
         r_m_axis_tvalid <= 1'b0;
+        r_frame_err     <= 1'b0;
+        r_parity_err    <= 1'b0;
       end
       
       if(r_rx == 1'b1 && rx == 1'b0 && r_rx_clr == 1'b1)
