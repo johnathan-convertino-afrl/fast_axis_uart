@@ -45,7 +45,7 @@
  *   CLOCK_SPEED      - This is the aclk frequency in Hz
  *   BAUD_RATE        - Serial Baud, this can be any value including non-standard.
  *   PARITY_TYPE      - Set the parity type, 0 = none, 1 = odd, 2 = even, 3 = mark, 4 = space.
- *   STOP_BITS        - Number of stop bits, 0 to crazy non-standard amounts.
+ *   STOP_BITS        - Number of stop bits, 1 to crazy non-standard amounts. If you use 0, you will break the protocol.
  *   DATA_BITS        - Number of data bits, 1 to 8.
  *   RX_BAUD_DELAY    - Delay in rx baud enable. This will delay when we sample a bit (default is midpoint when rx delay is 0).
  *   TX_BAUD_DELAY    - Delay in tx baud enable. This will delay the time the bit output starts.
@@ -101,6 +101,10 @@ module fast_axis_uart #(
   
   wire parity_bit;
   
+  wire s_tx_ready;
+  
+  wire [BITS_PER_TRANS-1:0] s_input_data;
+  
   wire [ 7:0] s_tx_counter;
   wire [ 7:0] s_rx_counter;
   
@@ -109,18 +113,15 @@ module fast_axis_uart #(
   reg [ 7:0] r_m_axis_tdata;
   reg        r_m_axis_tvalid;
   
-  reg [BITS_PER_TRANS-1:0] r_input_data;
-  reg                      r_input_valid;
-  
   reg r_rx;
   reg r_rx_clr;
   reg r_rx_load;
   
-  reg r_tx_clr;
-  reg r_tx_load;
+  assign s_input_data = {{STOP_BITS{1'b1}}, {PARITY_LEN{parity_bit}}, s_axis_tdata[DATA_BITS-1:0], 1'b0};
   
   // only ready for data when the counter has hit 0 and we have not stored valid input. We wait to load data since we want to make sure all pulses are the correct length.
-  assign s_axis_tready = (s_tx_counter == 0 ? ~r_input_valid & arstn : 1'b0);
+  assign s_axis_tready = s_tx_ready;
+  assign s_tx_ready = (s_tx_counter == 0 ? 1'b1 : 1'b0) & arstn;
   
   // output that the current m_axis_tdata is valid.
   assign m_axis_tvalid = r_m_axis_tvalid;
@@ -156,7 +157,7 @@ module fast_axis_uart #(
     .clk(aclk),
     .rstn(arstn),
     .start0(1'b1),
-    .clr(r_tx_clr),
+    .clr(s_tx_ready),
     .hold(1'b0),
     .rate(BAUD_RATE),
     .ena(uart_ena_tx)
@@ -213,49 +214,12 @@ module fast_axis_uart #(
     .rstn(arstn),
     .ena(uart_ena_tx),
     .rev(1'b1),
-    .load(r_tx_load),
-    .pdata({{32-BITS_PER_TRANS{1'b1}}, r_input_data}),
+    .load(s_axis_tvalid & s_tx_ready),
+    .pdata({{32-BITS_PER_TRANS{1'b1}}, s_input_data}),
     .reg_count_amount(BITS_PER_TRANS),
     .sdata(tx),
     .dcount(s_tx_counter)
   );
-  
-  //load data for tx
-  always @(posedge aclk)
-  begin
-    if(arstn == 1'b0)
-    begin
-      r_tx_load <= 1'b0;
-      r_tx_clr  <= 1'b1;
-      
-      r_input_data  <= 0;
-      r_input_valid <= 1'b0;
-    end else begin
-      r_tx_load <= 1'b0;
-      
-      if(s_axis_tvalid == 1'b1 && s_tx_counter == 0 && r_input_valid == 1'b0)
-      begin
-        r_input_data  <= {{STOP_BITS{1'b1}}, {PARITY_LEN{parity_bit}}, s_axis_tdata[DATA_BITS-1:0], 1'b0};
-        r_input_valid <= 1'b1;
-      end
-      
-      if(s_tx_counter == 0 && uart_ena_tx == 1'b1)
-      begin
-        r_tx_clr <= 1'b1;
-      end
-      
-      if(s_tx_counter == 0 && r_input_valid == 1'b1 && r_tx_clr == 1'b1)
-      begin
-        r_tx_load <= 1'b1;
-        r_tx_clr  <= 1'b0;
-      end
-      
-      if(s_tx_counter != 0)
-      begin
-        r_input_valid <= 1'b0;
-      end
-    end
-  end
   
   // for detection of incoming transmissions (RX)
   always @(posedge aclk)
