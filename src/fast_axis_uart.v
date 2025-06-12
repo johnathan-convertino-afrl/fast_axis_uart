@@ -31,7 +31,9 @@
 //
 //******************************************************************************
 
-`timescale 1ns/100ps
+`resetall
+`timescale 1 ns/10 ps
+`default_nettype none
 
 /*
  * Module: fast_axis_uart
@@ -73,18 +75,18 @@ module fast_axis_uart #(
     parameter TX_BAUD_DELAY = 0
   ) 
   (
-    input          aclk,
-    input          arstn,
-    output         parity_err,
-    output         frame_err,
-    input  [ 7:0]  s_axis_tdata,
-    input          s_axis_tvalid,
-    output         s_axis_tready,
-    output [ 7:0]  m_axis_tdata,
-    output         m_axis_tvalid,
-    input          m_axis_tready,
-    output         tx,
-    input          rx
+    input   wire         aclk,
+    input   wire         arstn,
+    output  wire         parity_err,
+    output  wire         frame_err,
+    input   wire [ 7:0]  s_axis_tdata,
+    input   wire         s_axis_tvalid,
+    output  wire         s_axis_tready,
+    output  wire [ 7:0]  m_axis_tdata,
+    output  wire         m_axis_tvalid,
+    input   wire         m_axis_tready,
+    output  wire         tx,
+    input   wire         rx
   );
   
   localparam PARITY_LEN = (PARITY_TYPE > 0 ? 1 : 0);
@@ -97,15 +99,18 @@ module fast_axis_uart #(
   wire uart_clr_rx_clk;
   wire uart_clr_tx_clk;
   
+  wire parity_bit;
+  
   wire [ 7:0] s_tx_counter;
   wire [ 7:0] s_rx_counter;
-  
-  wire [BITS_PER_TRANS-1:0] s_input_data;
   
   wire [31:0] s_output_data;
   
   reg [ 7:0] r_m_axis_tdata;
   reg        r_m_axis_tvalid;
+  
+  reg [BITS_PER_TRANS-1:0] r_input_data;
+  reg                      r_input_valid;
   
   reg r_rx;
   reg r_rx_clr;
@@ -113,8 +118,8 @@ module fast_axis_uart #(
   
   reg r_tx_load;
   
-  // only ready for data when the counter has hit 0 and an enable pulse comes. Since we want to make sure all pulses are the correct length.
-  assign s_axis_tready = (s_tx_counter == 0 ? uart_ena_tx : 1'b0);
+  // only ready for data when the counter has hit 0 and we have not stored valid input. We wait to load data since we want to make sure all pulses are the correct length.
+  assign s_axis_tready = (s_tx_counter == 0 ? ~r_input_valid & arstn : 1'b0);
   
   // output that the current m_axis_tdata is valid.
   assign m_axis_tvalid = r_m_axis_tvalid;
@@ -127,9 +132,6 @@ module fast_axis_uart #(
                       (PARITY_TYPE == 2 ? ^s_axis_tdata[DATA_BITS-1:0] :        //even
                       (PARITY_TYPE == 3 ? 1'b1 :                                //mark
                       (PARITY_TYPE == 4 ? 1'b0 : 1'b0))));                      //space
-  
-  // pack PISO data from inputs and specs
-  assign s_input_data = {{STOP_BITS{1'b1}}, {PARITY_LEN{parity_bit}}, s_axis_tdata[DATA_BITS-1:0], 1'b0};
   
   // output frame error when valid data is present
   assign frame_err = ~s_output_data[STOP_BITS+PARITY_LEN+DATA_BITS] & r_m_axis_tvalid;
@@ -211,7 +213,7 @@ module fast_axis_uart #(
     .ena(uart_ena_tx),
     .rev(1'b1),
     .load(r_tx_load),
-    .pdata({{32-BITS_PER_TRANS{1'b1}}, s_input_data}),
+    .pdata({{32-BITS_PER_TRANS{1'b1}}, r_input_data}),
     .reg_count_amount(BITS_PER_TRANS),
     .sdata(tx),
     .dcount(s_tx_counter)
@@ -223,12 +225,26 @@ module fast_axis_uart #(
     if(arstn == 1'b0)
     begin
       r_tx_load <= 1'b0;
+      
+      r_input_data  <= 0;
+      r_input_valid <= 1'b0;
     end else begin
       r_tx_load <= 1'b0;
       
-      if(s_axis_tvalid == 1'b1 && s_tx_counter == 0 && uart_ena_tx == 1'b1)
+      if(s_axis_tvalid == 1'b1 && s_tx_counter == 0 && r_input_valid == 1'b0)
+      begin
+        r_input_data  <= {{STOP_BITS{1'b1}}, {PARITY_LEN{parity_bit}}, s_axis_tdata[DATA_BITS-1:0], 1'b0};
+        r_input_valid <= 1'b1;
+      end
+      
+      if(r_input_valid == 1'b1 && s_tx_counter == 0 && uart_ena_tx == 1'b1)
       begin
         r_tx_load <= 1'b1;
+      end
+      
+      if(s_tx_counter != 0)
+      begin
+        r_input_valid <= 1'b0;
       end
     end
   end
@@ -273,3 +289,5 @@ module fast_axis_uart #(
   end
  
 endmodule
+
+`resetall
