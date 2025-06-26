@@ -1,5 +1,6 @@
 # FAST AXIS UART
 ### Minimal UART for fast transmissions
+---
 
 ![image](docs/manual/img/AFRL.png)
 

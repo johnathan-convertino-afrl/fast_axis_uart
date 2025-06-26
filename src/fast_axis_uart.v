@@ -110,14 +110,14 @@ module fast_axis_uart #(
   
   wire [31:0] s_output_data;
   
-  reg [ 7:0] r_m_axis_tdata;
-  reg        r_m_axis_tvalid;
-  reg        r_parity_err;
-  reg        r_frame_err;
+  reg  [ 7:0] r_m_axis_tdata;
+  reg         r_m_axis_tvalid;
+  reg         r_parity_err;
+  reg         r_frame_err;
   
-  reg r_rx;
-  reg r_rx_clr;
-  reg r_rx_load;
+  reg  r_rx;
+  reg  r_rx_clr;
+  reg  r_rx_load;
   
   assign s_input_data = {{STOP_BITS{1'b1}}, {PARITY_LEN{parity_bit}}, s_axis_tdata[DATA_BITS-1:0], 1'b0};
   
