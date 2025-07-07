@@ -75,7 +75,7 @@ parameters:
 
   BAUD_RATE:
     datatype    : int
-    default     : 500000
+    default     : 115200
     description : Baud rate
     paramtype   : vlogparam
 

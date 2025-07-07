@@ -124,7 +124,7 @@ async def single_word_rx(dut):
 
     await reset_dut(dut)
 
-    for x in range(1, 256):
+    for x in range(0, 256):
       data = x.to_bytes(length = 1, byteorder='little')
 
       await uart_source.write(data)
@@ -152,7 +152,7 @@ async def single_word_tx(dut):
 
     await reset_dut(dut)
 
-    for x in range(1, 256):
+    for x in range(0, 256):
       data = x.to_bytes(length = 1, byteorder='little')
       tx_frame = AxiStreamFrame(data, tx_complete=Event())
 

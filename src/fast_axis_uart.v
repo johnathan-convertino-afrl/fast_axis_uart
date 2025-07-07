@@ -32,7 +32,7 @@
 //******************************************************************************
 
 `resetall
-`timescale 1 ns/10 ps
+`timescale 1 ns/1 ps
 `default_nettype none
 
 /*
@@ -115,8 +115,7 @@ module fast_axis_uart #(
   reg         r_parity_err;
   reg         r_frame_err;
   
-  reg  r_rx;
-  reg  r_rx_clr;
+  reg  r_clr_clk_rx;
   reg  r_rx_load;
   
   assign s_input_data = {{STOP_BITS{1'b1}}, {PARITY_LEN{parity_bit}}, s_axis_tdata[DATA_BITS-1:0], 1'b0};
@@ -174,7 +173,7 @@ module fast_axis_uart #(
     .clk(aclk),
     .rstn(arstn),
     .start0(1'b0),
-    .clr(r_rx_clr),
+    .clr(rx & r_clr_clk_rx),
     .hold(1'b0),
     .rate(BAUD_RATE),
     .ena(uart_ena_rx)
@@ -195,7 +194,7 @@ module fast_axis_uart #(
     .load(r_rx_load),
     .pdata(s_output_data),
     .reg_count_amount(BITS_PER_TRANS),
-    .sdata(r_rx),
+    .sdata(rx),
     .dcount(s_rx_counter)
   );
   
@@ -225,20 +224,17 @@ module fast_axis_uart #(
   begin
     if(arstn == 1'b0)
     begin
-      r_rx <= 1'b1;
-      
-      r_rx_clr  <= 1'b1;
-      r_rx_load <= 1'b0;
+      r_clr_clk_rx  <= 1'b1;
+      r_rx_load     <= 1'b1;
       
       r_m_axis_tdata  <= 0;
       r_m_axis_tvalid <= 1'b0;
       
-      r_parity_err <= 1'b0;
-      r_frame_err <= 1'b0;
+      r_parity_err  <= 1'b0;
+      r_frame_err   <= 1'b0;
     end else begin
-      r_rx <= rx;
-      
-      r_rx_load <= 1'b0;
+      r_clr_clk_rx  <= r_clr_clk_rx;
+      r_rx_load     <= r_rx_load;
       
       if(m_axis_tready == 1'b1)
       begin
@@ -248,9 +244,11 @@ module fast_axis_uart #(
         r_parity_err    <= 1'b0;
       end
       
-      if(r_rx == 1'b1 && rx == 1'b0 && r_rx_clr == 1'b1)
+      // when RX is 0 (start) and we have set RX load (end) we know we are starting a new receive.
+      if(rx == 1'b0 && r_rx_load == 1'b1)
       begin
-        r_rx_clr <= 1'b0;
+        r_clr_clk_rx <= 1'b0;
+        r_rx_load    <= 1'b0;
       end
       
       if(s_rx_counter == BITS_PER_TRANS && r_rx_load != 1'b1)
@@ -265,8 +263,8 @@ module fast_axis_uart #(
                         (PARITY_TYPE == 3 ? 1'b1 == s_output_data[DATA_BITS+PARITY_LEN]:                               //mark
                         (PARITY_TYPE == 4 ? 1'b0 == s_output_data[DATA_BITS+PARITY_LEN]: 1'b0))));                     //space
         
-        r_rx_load <= 1'b1;
-        r_rx_clr  <= 1'b1;
+        r_rx_load     <= 1'b1;
+        r_clr_clk_rx  <= 1'b1;
       end
     end
   end
