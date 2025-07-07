@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("v",["File"],[["v",,[[,"fast_axis_uart.v",,,0,"File:fast_axis_uart.v:fast_axis_uart.v"],[,"tb_cocotb.v",,,0,"File2:tb_cocotb_full.v:tb_cocotb.v"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("v",["File"],[["v",,[[,"fast_axis_uart.v",,,0,"File:fast_axis_uart.v:fast_axis_uart.v"],[,"tb_cocotb.v",,,0,"File2:tb_cocotb.v:tb_cocotb.v"]]]]);

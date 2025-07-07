@@ -1,1 +1,1 @@
-﻿NDMenu.OnSectionLoaded("files.js",[[2,"axis_uart","File:",[[1,"fast_axis_uart.v"]]],[2,"tb_axis_uart","File2:",[[1,"tb_cocotb_full.py"],[1,"tb_cocotb_full.v"]]]]);
+﻿NDMenu.OnSectionLoaded("files.js",[[2,"axis_uart","File:",[[1,"fast_axis_uart.v"]]],[2,"tb_axis_uart","File2:",[[1,"tb_cocotb.py"],[1,"tb_cocotb.v"]]]]);

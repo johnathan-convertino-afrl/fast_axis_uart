@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("sin",["Function"],[["single_word",,[[,,,,0,"File2:tb_cocotb_full.py:single_word"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("sin",["Function"],[["single_word_rx",,[[,,,,0,"File2:tb_cocotb.py:single_word_rx"]]],["single_word_rx_tx",,[[,,,,0,"File2:tb_cocotb.py:single_word_rx_tx"]]],["single_word_tx",,[[,,,,0,"File2:tb_cocotb.py:single_word_tx"]]]]);

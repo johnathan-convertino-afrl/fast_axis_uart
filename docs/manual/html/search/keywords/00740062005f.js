@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("tb_",["Module","File"],[["tb_cocotb",,[[,,,,0,"File2:tb_cocotb_full.v:tb_cocotb","SystemVerilogModule:tb_cocotb"],[,"tb_cocotb.py",,,1,"File2:tb_cocotb_full.py:tb_cocotb.py"],[,"tb_cocotb.v",,,1,"File2:tb_cocotb_full.v:tb_cocotb.v"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("tb_",["Module","File"],[["tb_cocotb",,[[,,,,0,"File2:tb_cocotb.v:tb_cocotb","SystemVerilogModule:tb_cocotb"],[,"tb_cocotb.py",,,1,"File2:tb_cocotb.py:tb_cocotb.py"],[,"tb_cocotb.v",,,1,"File2:tb_cocotb.v:tb_cocotb.v"]]]]);

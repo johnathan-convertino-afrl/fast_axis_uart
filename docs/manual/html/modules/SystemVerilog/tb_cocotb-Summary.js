@@ -1,1 +1,1 @@
-﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:tb_cocotb","tb_cocotb");NDSummary.OnSummaryLoaded("SystemVerilogModule:tb_cocotb",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[56,0,0,"tb_cocotb"]]);
+﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:tb_cocotb","tb_cocotb");NDSummary.OnSummaryLoaded("SystemVerilogModule:tb_cocotb",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[26,0,0,"tb_cocotb"]]);

@@ -1,1 +1,1 @@
-﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:dut","dut");NDSummary.OnSummaryLoaded("SystemVerilogModule:dut",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[58,0,0,"dut"]]);
+﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:dut","dut");NDSummary.OnSummaryLoaded("SystemVerilogModule:dut",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[28,0,0,"dut"]]);

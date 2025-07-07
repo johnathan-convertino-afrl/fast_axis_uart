@@ -1,1 +1,1 @@
-﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:uart_baud_gen_tx","uart_baud_gen_tx");NDSummary.OnSummaryLoaded("SystemVerilogModule:uart_baud_gen_tx",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[44,0,0,"uart_baud_gen_tx"]]);
+﻿NDFramePage.OnPageTitleLoaded("SystemVerilogModule:uart_baud_gen_tx","uart_baud_gen_tx");NDSummary.OnSummaryLoaded("SystemVerilogModule:uart_baud_gen_tx",[["SystemVerilog","SystemVerilog"]],[["Modules","Module"]],[[30,0,0,"uart_baud_gen_tx"]]);
