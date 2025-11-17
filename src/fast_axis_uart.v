@@ -121,8 +121,8 @@ module fast_axis_uart #(
   assign s_input_data = {{STOP_BITS{1'b1}}, {PARITY_LEN{parity_bit}}, s_axis_tdata[DATA_BITS-1:0], 1'b0};
   
   // only ready for data when the counter has hit 0 and we have not stored valid input. We wait to load data since we want to make sure all pulses are the correct length.
-  assign s_axis_tready = s_tx_ready;
-  assign s_tx_ready = (s_tx_counter == 0 ? 1'b1 : 1'b0) & arstn;
+  assign s_axis_tready = s_tx_ready & arstn;
+  assign s_tx_ready = (s_tx_counter == 0 ? 1'b1 : 1'b0);
   
   // output that the current m_axis_tdata is valid.
   assign m_axis_tvalid = r_m_axis_tvalid;
